@@ -143,12 +143,11 @@ If you use SimpleSort in your research, please cite:
 }
 
 @article{du2023strongsort,
-  author    = {Yunhao Du and Yang Song and Bo Yang and Yanyun Zhao},
-  title     = {StrongSORT: Make DeepSORT Great Again},
+  title     = {Strongsort: Make DeepSort Great Again},
+  author    = {Du, Yunhao and Zhao, Zhicheng and Song, Yang and Zhao, Yanyun and Su, Fei and Gong, Tao and Meng, Hongying},
   journal   = {IEEE Transactions on Multimedia},
-  volume    = {25},
-  pages     = {8725--8737},
   year      = {2023},
+  publisher = {IEEE},
 }
 
 @article{he2020fastreid,
