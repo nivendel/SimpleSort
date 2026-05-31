@@ -133,6 +133,28 @@ If you use SimpleSort in your research, please cite:
 
 ## References
 
-- **DeepSORT** — N. Wojke, A. Bewley, D. Paulus. *Simple Online and Realtime Tracking with a Deep Association Metric.* ICIP 2017.
-- **StrongSORT** — Y. Du, Y. Song, B. Yang, Y. Zhao. *StrongSORT: Make DeepSORT Great Again.* IEEE TMM 2023.
-- **FastReID** — L. He, X. Liao, W. Liu, X. Liu, P. Cheng, T. Mei. *FastReID: A Pytorch Toolbox for General Instance Re-identification.* ACM MM 2020.
+```bibtex
+@inproceedings{wojke2017simple,
+  author    = {Nicolai Wojke and Alex Bewley and Dietrich Paulus},
+  title     = {Simple Online and Realtime Tracking with a Deep Association Metric},
+  booktitle = {2017 IEEE International Conference on Image Processing (ICIP)},
+  year      = {2017},
+  publisher = {IEEE},
+}
+
+@article{du2023strongsort,
+  author    = {Yunhao Du and Yang Song and Bo Yang and Yanyun Zhao},
+  title     = {StrongSORT: Make DeepSORT Great Again},
+  journal   = {IEEE Transactions on Multimedia},
+  volume    = {25},
+  pages     = {8725--8737},
+  year      = {2023},
+}
+
+@inproceedings{he2023fastreid,
+  author    = {Lingxiao He and Xingyu Liao and Wu Liu and Xinchen Liu and Peng Cheng and Tao Mei},
+  title     = {FastReID: A PyTorch Toolbox for General Instance Re-identification},
+  booktitle = {Proceedings of the 31st ACM International Conference on Multimedia},
+  year      = {2023},
+}
+```
