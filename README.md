@@ -121,15 +121,18 @@ This project incorporates:
 If you use SimpleSort in your research, please cite:
 
 ```bibtex
-@software{SimpleSort,
+@software{nivendel2026simplesort,
   author       = {Nivendel},
   title        = {SimpleSort},
   year         = {2026},
   publisher    = {GitHub},
   url          = {https://github.com/nivendel/SimpleSort},
-  note         = {With assistance from Claude Code and deepseek-v4-pro[1m]},
 }
 ```
+
+## Acknowledgments
+
+This project was developed with assistance from Claude Code (Anthropic) and DeepSeek-V4.
 
 ## References
 

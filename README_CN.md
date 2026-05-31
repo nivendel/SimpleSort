@@ -121,15 +121,18 @@ SimpleSort 基于 **GNU AGPL-3.0** 协议开源。详见 [LICENSE](LICENSE)。
 如果你在研究中使用了 SimpleSort，请引用：
 
 ```bibtex
-@software{SimpleSort,
+@software{nivendel2026simplesort,
   author       = {Nivendel},
   title        = {SimpleSort},
   year         = {2026},
   publisher    = {GitHub},
   url          = {https://github.com/nivendel/SimpleSort},
-  note         = {在 Claude Code 和 deepseek-v4-pro[1m] 协助下完成},
 }
 ```
+
+## 致谢
+
+本项目在 Claude Code（Anthropic）和 DeepSeek-V4 的协助下开发完成。
 
 ## 参考文献
 
