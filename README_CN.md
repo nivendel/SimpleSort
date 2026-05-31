@@ -133,6 +133,35 @@ SimpleSort 基于 **GNU AGPL-3.0** 协议开源。详见 [LICENSE](LICENSE)。
 
 ## 参考文献
 
-- **DeepSORT** — N. Wojke, A. Bewley, D. Paulus. *Simple Online and Realtime Tracking with a Deep Association Metric.* ICIP 2017.
-- **StrongSORT** — Y. Du, Y. Song, B. Yang, Y. Zhao. *StrongSORT: Make DeepSORT Great Again.* IEEE TMM 2023.
-- **FastReID** — L. He, X. Liao, W. Liu, X. Liu, P. Cheng, T. Mei. *FastReID: A Pytorch Toolbox for General Instance Re-identification.* ACM MM 2020.
+```bibtex
+@inproceedings{wojke2017simple,
+  author    = {Nicolai Wojke and Alex Bewley and Dietrich Paulus},
+  title     = {Simple Online and Realtime Tracking with a Deep Association Metric},
+  booktitle = {2017 IEEE International Conference on Image Processing (ICIP)},
+  year      = {2017},
+  publisher = {IEEE},
+}
+
+@article{du2023strongsort,
+  title     = {Strongsort: Make DeepSort Great Again},
+  author    = {Du, Yunhao and Zhao, Zhicheng and Song, Yang and Zhao, Yanyun and Su, Fei and Gong, Tao and Meng, Hongying},
+  journal   = {IEEE Transactions on Multimedia},
+  year      = {2023},
+  publisher = {IEEE},
+}
+
+@article{he2020fastreid,
+  title     = {FastReID: A Pytorch Toolbox for General Instance Re-identification},
+  author    = {He, Lingxiao and Liao, Xingyu and Liu, Wu and Liu, Xinchen and Cheng, Peng and Mei, Tao},
+  journal   = {arXiv preprint arXiv:2006.02631},
+  year      = {2020},
+}
+
+@software{ultralytics2023yolo,
+  author    = {Glenn Jocher and Jing Qiu and Ayush Chaurasia},
+  title     = {Ultralytics YOLO},
+  url       = {https://github.com/ultralytics/ultralytics},
+  version   = {8.0.0},
+  year      = {2023},
+}
+```
