@@ -151,10 +151,18 @@ If you use SimpleSort in your research, please cite:
   year      = {2023},
 }
 
-@inproceedings{he2023fastreid,
-  author    = {Lingxiao He and Xingyu Liao and Wu Liu and Xinchen Liu and Peng Cheng and Tao Mei},
-  title     = {FastReID: A PyTorch Toolbox for General Instance Re-identification},
-  booktitle = {Proceedings of the 31st ACM International Conference on Multimedia},
+@article{he2020fastreid,
+  title     = {FastReID: A Pytorch Toolbox for General Instance Re-identification},
+  author    = {He, Lingxiao and Liao, Xingyu and Liu, Wu and Liu, Xinchen and Cheng, Peng and Mei, Tao},
+  journal   = {arXiv preprint arXiv:2006.02631},
+  year      = {2020},
+}
+
+@software{ultralytics2023yolo,
+  author    = {Glenn Jocher and Jing Qiu and Ayush Chaurasia},
+  title     = {Ultralytics YOLO},
+  url       = {https://github.com/ultralytics/ultralytics},
+  version   = {8.0.0},
   year      = {2023},
 }
 ```
