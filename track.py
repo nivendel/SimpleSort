@@ -45,6 +45,7 @@ class Track:
         kema_min_hits: int = 3,
         kema_n_std: float = 3.0,
         kema_alpha: float = 0.1,
+        kema_split_thresh: float | None = None,
     ):
         mean, cov = kf.initiate(det.xyah)
         self.mean = np.asarray(mean, dtype=np.float64)
@@ -59,7 +60,7 @@ class Track:
         self.age = 0
         self.last_tlwh = list(det.tlwh)
 
-        self.kema = KEMA(kema_min_hits, kema_n_std, kema_alpha)
+        self.kema = KEMA(kema_min_hits, kema_n_std, kema_alpha, kema_split_thresh)
         if det.feat is not None:
             self.kema(det.feat)
 
@@ -112,14 +113,16 @@ class Track:
 
         self.mean, self.cov = kf.update(self.mean, self.cov, det.xyah, det.conf)
 
-        self.kema(det.feat)
+        self.kema(det.feat, recovering=self.is_recovering)
         self.last_tlwh = list(det.tlwh)
 
         self.hits += 1
         self.misses = 0
         self.time_since_update = 0
 
-        if self.state in (TENTATIVE, RECOVERING) and self.hits >= self._n_confirm:
+        if self.state == TENTATIVE and self.hits >= self._n_confirm:
+            self.state = CONFIRMED
+        elif self.state == RECOVERING and self.hits >= 2 * self._n_confirm:
             self.state = CONFIRMED
 
     def mark_missed(self) -> None:
@@ -143,7 +146,7 @@ class Track:
         """Re-activate a LOST track, entering RECOVERING probation."""
         self.mean = mean
         self.cov = cov
-        self.kema(feat)
+        self.kema(feat, recovering=True)
         self.last_tlwh = list(tlwh)
         self.state = RECOVERING
         self.hits = 0

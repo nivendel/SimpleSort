@@ -25,14 +25,17 @@ class KEMA:
         min_hits: int = 3,
         n_std: float = 3.0,
         alpha: float = 0.1,
+        split_thresh: float | None = None,
     ):
         self.min_hits = min_hits
         self.n_std = n_std
         self.alpha = alpha
+        self.split_thresh = split_thresh
 
         self._centers: np.ndarray = np.empty((0, 0), dtype=np.float32)
         self._hits: np.ndarray = np.empty(0, dtype=np.int32)
         self._active: np.ndarray = np.empty(0, dtype=bool)
+        self._recovering: np.ndarray = np.empty(0, dtype=bool)
         self._dist_sum: np.ndarray = np.empty(0, dtype=np.float64)
         self._dist_sum_sq: np.ndarray = np.empty(0, dtype=np.float64)
 
@@ -89,12 +92,13 @@ class KEMA:
 
     # -- cluster creation ----------------------------------------------------
 
-    def _create_cluster(self, x: np.ndarray) -> int:
+    def _create_cluster(self, x: np.ndarray, recovering: bool = False) -> int:
         """Add a new cluster and return its index."""
         if self._centers.size == 0:
             self._centers = x.reshape(1, -1).copy()
             self._hits = np.array([1], dtype=np.int32)
             self._active = np.array([False])
+            self._recovering = np.array([recovering])
             self._dist_sum = np.array([0.0], dtype=np.float64)
             self._dist_sum_sq = np.array([0.0], dtype=np.float64)
             return 0
@@ -102,32 +106,36 @@ class KEMA:
         self._centers = np.vstack([self._centers, x.reshape(1, -1)])
         self._hits = np.append(self._hits, 1)
         self._active = np.append(self._active, False)
+        self._recovering = np.append(self._recovering, recovering)
         self._dist_sum = np.append(self._dist_sum, 0.0)
         self._dist_sum_sq = np.append(self._dist_sum_sq, 0.0)
         return self._centers.shape[0] - 1
 
     # -- main API -----------------------------------------------------------
 
-    def partial_fit(self, feature: np.ndarray) -> int:
+    def partial_fit(self, feature: np.ndarray, recovering: bool = False) -> int:
         feature = np.asarray(feature, dtype=np.float32).copy()
 
         if self._centers.size == 0:
-            return self._create_cluster(feature)
+            return self._create_cluster(feature, recovering)
 
         centers = self._normalize(self._centers)
         similarities = feature @ centers.T
         best = int(np.argmax(similarities))
         best_dist = float(1.0 - similarities[best])
 
-        mean_k = self._cluster_mean(best)
-        pooled_std = self._pooled_std()
-        if mean_k is not None and pooled_std is not None:
-            should_split = best_dist > mean_k + self.n_std * pooled_std
+        if self.split_thresh is not None:
+            should_split = best_dist > self.split_thresh
         else:
-            should_split = False
+            mean_k = self._cluster_mean(best)
+            pooled_std = self._pooled_std()
+            if mean_k is not None and pooled_std is not None:
+                should_split = best_dist > mean_k + self.n_std * pooled_std
+            else:
+                should_split = False
 
         if should_split:
-            hit = self._create_cluster(feature)
+            hit = self._create_cluster(feature, recovering)
         else:
             self._centers[best] = (
                 (1.0 - self.alpha) * self._centers[best] + self.alpha * feature
@@ -135,7 +143,8 @@ class KEMA:
             self._hits[best] += 1
             self._dist_sum[best] += best_dist
             self._dist_sum_sq[best] += best_dist * best_dist
-            if self._hits[best] >= self.min_hits:
+            required = 2 * self.min_hits if self._recovering[best] else self.min_hits
+            if self._hits[best] >= required:
                 self._active[best] = True
             hit = best
 
@@ -148,13 +157,14 @@ class KEMA:
         self._centers = self._centers[keep]
         self._hits = self._hits[keep]
         self._active = self._active[keep]
+        self._recovering = self._recovering[keep]
         self._dist_sum = self._dist_sum[keep]
         self._dist_sum_sq = self._dist_sum_sq[keep]
 
         return hit
 
-    def __call__(self, feature: np.ndarray) -> int:
-        return self.partial_fit(feature)
+    def __call__(self, feature: np.ndarray, recovering: bool = False) -> int:
+        return self.partial_fit(feature, recovering)
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         """Assign each row of *X* to the nearest cluster."""

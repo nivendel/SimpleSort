@@ -56,6 +56,7 @@ class Tracker:
         kema_min_hits: int = 3,
         kema_n_std: float = 3.0,
         kema_alpha: float = 0.1,
+        kema_split_thresh: float | None = None,
     ):
         self.detector = detector
         self.reid = reid
@@ -66,6 +67,7 @@ class Tracker:
         self._kema_min_hits = kema_min_hits
         self._kema_n_std = kema_n_std
         self._kema_alpha = kema_alpha
+        self._kema_split_thresh = kema_split_thresh
         self.tracks: list[Track] = []
         self._cur_dets: list[tuple[Detection, int]] = []
 
@@ -78,6 +80,7 @@ class Tracker:
         return Track(
             det, self._n_confirm, self._max_age, self._max_tentative_misses,
             self._kema_min_hits, self._kema_n_std, self._kema_alpha,
+            self._kema_split_thresh,
         )
 
     # -- main loop ----------------------------------------------------------
