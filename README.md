@@ -18,6 +18,8 @@ YOLO → Detection → Dedup → ReID features → 3-stage matching → Kalman u
 
 ## Quick Start
 
+**Python API** — for integration:
+
 ```python
 from SimpleSort import Detector, ReID, Matcher, Tracker, VideoFrameReader
 
@@ -30,6 +32,23 @@ tracker = Tracker(
 for frame_idx, frame in VideoFrameReader("video.mp4"):
     tracker.update(frame)
     annotated = tracker.visual(frame)
+```
+
+**CLI** — one command:
+
+```bash
+cd SimpleSort
+python run.py video.mp4
+```
+
+Full options:
+
+```bash
+python run.py video.mp4 \
+    --yolo yolo26x.pt \
+    --reid msmt_sbs_R101-ibn.pth \
+    --output output/run \
+    --no-video           # skip tracked video, FPS plot + stats only
 ```
 
 Model weights are downloaded automatically on first use. YOLO weights are fetched by Ultralytics; ReID weights are fetched from the [FastReID model zoo](https://github.com/JDAI-CV/fast-reid/releases).
@@ -100,6 +119,7 @@ SimpleSort/
 ├── track.py           Track class (state machine + KEMA)
 ├── tracker.py         Main Tracker with 3-stage pipeline
 ├── video_reader.py    Video I/O with context manager
+├── run.py             CLI entry point, FPS plot + ID statistics
 ├── requirements.txt   Python dependencies
 ├── README.md          English documentation
 ├── README_CN.md       Chinese documentation

@@ -18,6 +18,8 @@ YOLO → 检测 → 去重 → ReID 特征 → 三级级联匹配 → Kalman 更
 
 ## 快速开始
 
+**Python API** — 供代码集成：
+
 ```python
 from SimpleSort import Detector, ReID, Matcher, Tracker, VideoFrameReader
 
@@ -30,6 +32,23 @@ tracker = Tracker(
 for frame_idx, frame in VideoFrameReader("video.mp4"):
     tracker.update(frame)
     annotated = tracker.visual(frame)
+```
+
+**命令行** — 一行搞定：
+
+```bash
+cd SimpleSort
+python run.py video.mp4
+```
+
+完整参数：
+
+```bash
+python run.py video.mp4 \
+    --yolo yolo26x.pt \
+    --reid msmt_sbs_R101-ibn.pth \
+    --output output/run \
+    --no-video           # 跳过输出视频，仅生成 FPS 图和统计数据
 ```
 
 模型权重首次使用时会自动下载。YOLO 权重由 Ultralytics 自动获取；ReID 权重从 [FastReID 模型库](https://github.com/JDAI-CV/fast-reid/releases) 下载。
@@ -100,6 +119,7 @@ SimpleSort/
 ├── track.py           轨迹类（状态机 + KEMA）
 ├── tracker.py         主跟踪器，三级级联匹配
 ├── video_reader.py    视频 I/O，支持上下文管理器
+├── run.py             CLI 入口，FPS 图与 ID 统计
 ├── requirements.txt   Python 依赖
 ├── README.md          英文文档
 ├── README_CN.md       中文文档
