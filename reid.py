@@ -3,7 +3,7 @@
 Input:  frame (H, W, 3) BGR,  tlwhs (N, 4) or list[np.ndarray]
 Output: feats (N, 2048)  L2-normalised
 
-Copyright (C) 2026 Nivendel, College of Civil Engineering, Tongji University
+Copyright (C) 2026 Nivendel
 With assistance from Claude Code and deepseek-v4-pro[1m]
 SPDX-License-Identifier: AGPL-3.0-or-later
 """

@@ -4,7 +4,7 @@ Input:  x (D,)  L2-normalised feature
 Output: cluster_id (int)
 State:  match_centers (K, D)  L2-normalised active centres
 
-Copyright (C) 2026 Nivendel, College of Civil Engineering, Tongji University
+Copyright (C) 2026 Nivendel
 With assistance from Claude Code and deepseek-v4-pro[1m]
 SPDX-License-Identifier: AGPL-3.0-or-later
 """
@@ -23,14 +23,18 @@ class KEMA:
     def __init__(
         self,
         min_hits: int = 3,
-        n_std: float = 3.0,
-        alpha: float = 0.1,
-        split_thresh: float | None = None,
+        n_std: float = 1.0,
+        alpha: float = 0.02,
+        split_thresh: float | None = 0.008,
+        stale_frames: int = 500,
+        stale_max_hits: int = 10,
     ):
         self.min_hits = min_hits
         self.n_std = n_std
         self.alpha = alpha
         self.split_thresh = split_thresh
+        self.stale_frames = stale_frames
+        self.stale_max_hits = stale_max_hits
 
         self._centers: np.ndarray = np.empty((0, 0), dtype=np.float32)
         self._hits: np.ndarray = np.empty(0, dtype=np.int32)
@@ -38,6 +42,7 @@ class KEMA:
         self._recovering: np.ndarray = np.empty(0, dtype=bool)
         self._dist_sum: np.ndarray = np.empty(0, dtype=np.float64)
         self._dist_sum_sq: np.ndarray = np.empty(0, dtype=np.float64)
+        self._frames_since_hit: np.ndarray = np.empty(0, dtype=np.int32)
 
     # -- helpers ------------------------------------------------------------
 
@@ -101,6 +106,7 @@ class KEMA:
             self._recovering = np.array([recovering])
             self._dist_sum = np.array([0.0], dtype=np.float64)
             self._dist_sum_sq = np.array([0.0], dtype=np.float64)
+            self._frames_since_hit = np.array([0], dtype=np.int32)
             return 0
 
         self._centers = np.vstack([self._centers, x.reshape(1, -1)])
@@ -109,6 +115,7 @@ class KEMA:
         self._recovering = np.append(self._recovering, recovering)
         self._dist_sum = np.append(self._dist_sum, 0.0)
         self._dist_sum_sq = np.append(self._dist_sum_sq, 0.0)
+        self._frames_since_hit = np.append(self._frames_since_hit, 0)
         return self._centers.shape[0] - 1
 
     # -- main API -----------------------------------------------------------
@@ -118,6 +125,9 @@ class KEMA:
 
         if self._centers.size == 0:
             return self._create_cluster(feature, recovering)
+
+        # increment idle counter for all centres
+        self._frames_since_hit += 1
 
         centers = self._normalize(self._centers)
         similarities = feature @ centers.T
@@ -143,6 +153,7 @@ class KEMA:
             self._hits[best] += 1
             self._dist_sum[best] += best_dist
             self._dist_sum_sq[best] += best_dist * best_dist
+            self._frames_since_hit[best] = 0
             required = 2 * self.min_hits if self._recovering[best] else self.min_hits
             if self._hits[best] >= required:
                 self._active[best] = True
@@ -153,13 +164,16 @@ class KEMA:
         mask[hit] = False
         self._hits[mask] -= 1
 
-        keep = self._hits > 0
+        # prune: inactive with hits <= 0, or stale active (idle too long + low total hits)
+        stale = self._active & (self._frames_since_hit >= self.stale_frames) & (self._hits < self.stale_max_hits)
+        keep = (self._hits > 0) & ~stale
         self._centers = self._centers[keep]
         self._hits = self._hits[keep]
         self._active = self._active[keep]
         self._recovering = self._recovering[keep]
         self._dist_sum = self._dist_sum[keep]
         self._dist_sum_sq = self._dist_sum_sq[keep]
+        self._frames_since_hit = self._frames_since_hit[keep]
 
         return hit
 

@@ -9,7 +9,7 @@ Detection fields:
     conf : float            — confidence score
     feat : np.ndarray (D,) | None  — set later by ReID
 
-Copyright (C) 2026 Nivendel, College of Civil Engineering, Tongji University
+Copyright (C) 2026 Nivendel
 With assistance from Claude Code and deepseek-v4-pro[1m]
 SPDX-License-Identifier: AGPL-3.0-or-later
 """

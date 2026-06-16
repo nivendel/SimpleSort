@@ -9,7 +9,7 @@
 Input : frame (H, W, 3) BGR  →  np.ndarray
 State : self.tracks (list[Track]), self._cur_dets (list[tuple[Detection, int]])
 
-Copyright (C) 2026 Nivendel, College of Civil Engineering, Tongji University
+Copyright (C) 2026 Nivendel
 With assistance from Claude Code and deepseek-v4-pro[1m]
 SPDX-License-Identifier: AGPL-3.0-or-later
 """
@@ -42,7 +42,8 @@ class Tracker:
     n_confirm : int = 3
     max_age : int = 10
     max_tentative_misses : int = 2
-    kema_min_hits, kema_n_std, kema_alpha : passed to :class:`Track`.
+    kema_min_hits, kema_n_std, kema_alpha, kema_split_thresh,
+    kema_stale_frames, kema_stale_max_hits : passed to :class:`Track`.
     """
 
     def __init__(
@@ -54,9 +55,11 @@ class Tracker:
         max_age: int = 10,
         max_tentative_misses: int = 2,
         kema_min_hits: int = 3,
-        kema_n_std: float = 3.0,
-        kema_alpha: float = 0.1,
-        kema_split_thresh: float | None = None,
+        kema_n_std: float = 1.0,
+        kema_alpha: float = 0.02,
+        kema_split_thresh: float | None = 0.008,
+        kema_stale_frames: int = 500,
+        kema_stale_max_hits: int = 10,
     ):
         self.detector = detector
         self.reid = reid
@@ -68,6 +71,8 @@ class Tracker:
         self._kema_n_std = kema_n_std
         self._kema_alpha = kema_alpha
         self._kema_split_thresh = kema_split_thresh
+        self._kema_stale_frames = kema_stale_frames
+        self._kema_stale_max_hits = kema_stale_max_hits
         self.tracks: list[Track] = []
         self._cur_dets: list[tuple[Detection, int]] = []
 
@@ -80,7 +85,8 @@ class Tracker:
         return Track(
             det, self._n_confirm, self._max_age, self._max_tentative_misses,
             self._kema_min_hits, self._kema_n_std, self._kema_alpha,
-            self._kema_split_thresh,
+            self._kema_split_thresh, self._kema_stale_frames,
+            self._kema_stale_max_hits,
         )
 
     # -- main loop ----------------------------------------------------------

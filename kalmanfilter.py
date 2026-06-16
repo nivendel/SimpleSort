@@ -6,7 +6,7 @@ xyah : np.ndarray (4,)  — [center_x, center_y, aspect_ratio, height]
 mean : np.ndarray (8,)  — full state
 cov  : np.ndarray (8,8) — state covariance
 
-Copyright (C) 2026 Nivendel, College of Civil Engineering, Tongji University
+Copyright (C) 2026 Nivendel
 With assistance from Claude Code and deepseek-v4-pro[1m]
 SPDX-License-Identifier: AGPL-3.0-or-later
 """

@@ -5,7 +5,7 @@ Every matcher returns (matches, unmatched_tracks, unmatched_dets):
     unmatched_tracks  : list[int]
     unmatched_dets    : list[int]
 
-Copyright (C) 2026 Nivendel, College of Civil Engineering, Tongji University
+Copyright (C) 2026 Nivendel
 With assistance from Claude Code and deepseek-v4-pro[1m]
 SPDX-License-Identifier: AGPL-3.0-or-later
 """
@@ -41,28 +41,42 @@ def _nn_cosine_distance(gallery: np.ndarray, queries: np.ndarray) -> np.ndarray:
 # -- cost helpers -----------------------------------------------------------
 
 def iou_cost(tlwhs1: list, tlwhs2: list) -> np.ndarray:
-    """1 - IoU cost matrix (0 = perfect overlap).
+    """1 - IoU cost matrix (0 = perfect overlap).  Fully vectorised.
 
     tlwhs1 : list of [x, y, w, h]
     tlwhs2 : list of [x, y, w, h]
     →  (len(tlwhs1), len(tlwhs2))
     """
     n, m = len(tlwhs1), len(tlwhs2)
+    if n == 0 or m == 0:
+        return np.ones((n, m))
+
+    b1 = np.asarray(tlwhs1, dtype=np.float64)  # (n, 4)
+    b2 = np.asarray(tlwhs2, dtype=np.float64)  # (m, 4)
+
+    # (x, y, w, h) → (x1, y1, x2, y2)
+    b1_x2 = b1[:, 0] + b1[:, 2];  b1_y2 = b1[:, 1] + b1[:, 3]
+    b2_x2 = b2[:, 0] + b2[:, 2];  b2_y2 = b2[:, 1] + b2[:, 3]
+
+    area1 = b1[:, 2] * b1[:, 3]  # (n,)
+    area2 = b2[:, 2] * b2[:, 3]  # (m,)
+
+    # intersection corners — broadcasting (n, 1) vs (1, m) → (n, m)
+    ix1 = np.maximum(b1[:, 0, None], b2[None, :, 0])
+    iy1 = np.maximum(b1[:, 1, None], b2[None, :, 1])
+    ix2 = np.minimum(b1_x2[:, None],    b2_x2[None, :])
+    iy2 = np.minimum(b1_y2[:, None],    b2_y2[None, :])
+
+    iw = np.maximum(0.0, ix2 - ix1)
+    ih = np.maximum(0.0, iy2 - iy1)
+    inter = iw * ih
+
+    union = area1[:, None] + area2[None, :] - inter
+
+    # only pairs where both boxes have positive area and union > 0 get a real cost
     cost = np.ones((n, m))
-    for i, (x1, y1, w1, h1) in enumerate(tlwhs1):
-        area1 = w1 * h1
-        if area1 <= 0:
-            continue
-        for j, (x2, y2, w2, h2) in enumerate(tlwhs2):
-            area2 = w2 * h2
-            if area2 <= 0:
-                continue
-            xi1, yi1 = max(x1, x2), max(y1, y2)
-            xi2, yi2 = min(x1 + w1, x2 + w2), min(y1 + h1, y2 + h2)
-            inter = max(0, xi2 - xi1) * max(0, yi2 - yi1)
-            union = area1 + area2 - inter
-            if union > 0:
-                cost[i, j] = 1.0 - inter / union
+    valid = (area1[:, None] > 0) & (area2[None, :] > 0) & (union > 0)
+    cost[valid] = 1.0 - inter[valid] / union[valid]
     return cost
 
 

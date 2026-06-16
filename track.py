@@ -1,6 +1,6 @@
 """Track — single-object trajectory with Kalman state and appearance model.
 
-Copyright (C) 2026 Nivendel, College of Civil Engineering, Tongji University
+Copyright (C) 2026 Nivendel
 With assistance from Claude Code and deepseek-v4-pro[1m]
 SPDX-License-Identifier: AGPL-3.0-or-later
 """
@@ -30,7 +30,8 @@ class Track:
         Frames unmatched before CONFIRMED → LOST.
     max_tentative_misses : int = 2
         Misses before TENTATIVE → DELETED.
-    kema_min_hits, kema_n_std, kema_alpha :
+    kema_min_hits, kema_n_std, kema_alpha, kema_split_thresh,
+    kema_stale_frames, kema_stale_max_hits :
         Passed to :class:`KEMA`.
     """
 
@@ -43,9 +44,11 @@ class Track:
         max_age: int = 10,
         max_tentative_misses: int = 2,
         kema_min_hits: int = 3,
-        kema_n_std: float = 3.0,
-        kema_alpha: float = 0.1,
-        kema_split_thresh: float | None = None,
+        kema_n_std: float = 1.0,
+        kema_alpha: float = 0.02,
+        kema_split_thresh: float | None = 0.008,
+        kema_stale_frames: int = 500,
+        kema_stale_max_hits: int = 10,
     ):
         mean, cov = kf.initiate(det.xyah)
         self.mean = np.asarray(mean, dtype=np.float64)
@@ -60,7 +63,8 @@ class Track:
         self.age = 0
         self.last_tlwh = list(det.tlwh)
 
-        self.kema = KEMA(kema_min_hits, kema_n_std, kema_alpha, kema_split_thresh)
+        self.kema = KEMA(kema_min_hits, kema_n_std, kema_alpha, kema_split_thresh,
+                         kema_stale_frames, kema_stale_max_hits)
         if det.feat is not None:
             self.kema(det.feat)
 
